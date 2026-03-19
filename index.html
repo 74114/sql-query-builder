@@ -4,8 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI SQL Query Builder</title>
-    <link rel="stylesheet" href="/UI.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <style>
+        /* ── your exact ui.css ── */
+        body {
+            background-color: lightblue;
+        }
+        .form {
+            background-color: white;
+            border-radius: 20px;
+            margin: 70px;
+            padding: 20px;
+        }
+        .in1 input {
+            width: 950px;
+            height: 30px;
+        }
+        .in1 button {
+            width: 300px;
+            height: 30px;
+            color: white;
+            background-color: rgba(13, 83, 13, 0.781);
+        }
+        .tab {
+            width: 1300px;
+        }
+        .imag {
+            width: 50px;
+            height: 50px;
+            border-radius: 50px;
+        }
+        /* dialect pills */
+        .dpill {
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 1px solid #d1d5db;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.15s;
+        }
+        .dpill:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+        .dpill.active {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+    </style>
 </head>
 <body>
 
@@ -20,111 +69,71 @@
 
     <form class="form" onsubmit="return false;">
 
-        <!-- ══════════════════════════════════════
-             MySQL CONNECTION PANEL
-        ══════════════════════════════════════ -->
+        <!-- ══ MySQL CONNECTION PANEL ══ -->
         <div id="connectPanel"
              style="background:#f0fdf4; border:1px solid #86efac;
                     border-radius:12px; padding:16px 20px; margin-bottom:20px;">
-
             <h3 style="font-size:18px; margin-bottom:12px; color:#166534;">
                 <i class="fa-solid fa-plug" style="color:#16a34a;"></i>
                 MySQL Database Connection
             </h3>
-
-            <!-- connection status -->
-            <p id="connStatus"
-               style="font-size:13px; margin-bottom:12px; color:#6b7280;">
+            <p id="connStatus" style="font-size:13px; margin-bottom:12px; color:#6b7280;">
                 ⚪ Not connected
             </p>
-
-            <!-- connection form (shown when disconnected) -->
             <div id="connForm">
                 <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
-
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
-                            Host
-                        </label>
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Host</label>
                         <input type="text" id="dbHost" value="localhost"
                                style="width:120px; height:32px; padding:0 10px;
-                                      border:1px solid #d1d5db; border-radius:6px;
-                                      font-size:14px;"/>
+                                      border:1px solid #d1d5db; border-radius:6px; font-size:14px;"/>
                     </div>
-
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
-                            Port
-                        </label>
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Port</label>
                         <input type="text" id="dbPort" value="3306"
                                style="width:70px; height:32px; padding:0 10px;
-                                      border:1px solid #d1d5db; border-radius:6px;
-                                      font-size:14px;"/>
+                                      border:1px solid #d1d5db; border-radius:6px; font-size:14px;"/>
                     </div>
-
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
-                            Username
-                        </label>
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Username</label>
                         <input type="text" id="dbUser" value="root"
                                style="width:100px; height:32px; padding:0 10px;
-                                      border:1px solid #d1d5db; border-radius:6px;
-                                      font-size:14px;"/>
+                                      border:1px solid #d1d5db; border-radius:6px; font-size:14px;"/>
                     </div>
-
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
-                            Password
-                        </label>
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Password</label>
                         <input type="password" id="dbPass" placeholder="Enter password"
                                style="width:160px; height:32px; padding:0 10px;
-                                      border:1px solid #d1d5db; border-radius:6px;
-                                      font-size:14px;"/>
+                                      border:1px solid #d1d5db; border-radius:6px; font-size:14px;"/>
                     </div>
-
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
-                            Database
-                        </label>
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Database</label>
                         <input type="text" id="dbName" value="sqlcraft"
                                style="width:120px; height:32px; padding:0 10px;
-                                      border:1px solid #d1d5db; border-radius:6px;
-                                      font-size:14px;"/>
+                                      border:1px solid #d1d5db; border-radius:6px; font-size:14px;"/>
                     </div>
-
                     <button type="button" onclick="connectDB()"
-                            style="height:32px; padding:0 20px;
-                                   background:#16a34a; color:white;
-                                   border:none; border-radius:6px;
-                                   font-size:14px; font-weight:600;
-                                   cursor:pointer;">
+                            style="height:32px; padding:0 20px; background:#16a34a; color:white;
+                                   border:none; border-radius:6px; font-size:14px;
+                                   font-weight:600; cursor:pointer;">
                         <i class="fa-solid fa-plug"></i> Connect
                     </button>
-
                 </div>
-                <p id="connError"
-                   style="display:none; color:red; font-size:13px; margin-top:8px;"></p>
+                <p id="connError" style="display:none; color:red; font-size:13px; margin-top:8px;"></p>
             </div>
-
-            <!-- disconnect button (shown when connected) -->
             <div id="connected" style="display:none;">
                 <div style="display:flex; align-items:center; gap:16px;">
                     <span id="connInfo" style="font-size:14px; color:#166534; font-weight:600;"></span>
                     <button type="button" onclick="disconnectDB()"
-                            style="height:32px; padding:0 16px;
-                                   background:#dc2626; color:white;
-                                   border:none; border-radius:6px;
-                                   font-size:13px; cursor:pointer;">
+                            style="height:32px; padding:0 16px; background:#dc2626; color:white;
+                                   border:none; border-radius:6px; font-size:13px; cursor:pointer;">
                         <i class="fa-solid fa-plug-circle-xmark"></i> Disconnect
                     </button>
                 </div>
             </div>
-
         </div>
 
-        <!-- ══════════════════════════════════════
-             INPUT ROW (your exact structure)
-        ══════════════════════════════════════ -->
+        <!-- ══ INPUT ROW (your exact structure) ══ -->
         <div class="in1">
             <input type="text" id="questionInput"
                    placeholder="show all students with marks above 70"/>
@@ -143,27 +152,20 @@
         </div>
 
         <!-- loading + error -->
-        <p id="loadingMsg"
-           style="display:none; color:#1d4ed8; font-size:15px; margin-top:12px;">
+        <p id="loadingMsg" style="display:none; color:#1d4ed8; font-size:15px; margin-top:12px;">
             <i class="fa-solid fa-spinner fa-spin"></i>
             &nbsp;Generating SQL with Llama 3.3 70B (Groq)...
         </p>
-        <p id="errorMsg"
-           style="display:none; color:red; font-size:14px; margin-top:10px;
-                  background:#fff0f0; padding:10px; border-radius:8px;
-                  border:1px solid #ffcccc;"></p>
+        <p id="errorMsg" style="display:none; color:red; font-size:14px; margin-top:10px;
+                                 background:#fff0f0; padding:10px; border-radius:8px;
+                                 border:1px solid #ffcccc;"></p>
 
-        <!-- ══════════════════════════════════════
-             GENERATED SQL (your exact structure)
-        ══════════════════════════════════════ -->
+        <!-- ══ GENERATED SQL (your exact structure) ══ -->
         <h2 style="font-size:40px; margin-top:20px;">Generated SQL Query</h2>
-
         <div style="display:flex; align-items:center; gap:10px;">
             <input id="sqlOutput"
-                   style="width:1200px; height:30px;
-                          font-family:monospace; font-size:14px;"
-                   type="text" readonly
-                   placeholder="Your SQL will appear here..."/>
+                   style="width:1200px; height:30px; font-family:monospace; font-size:14px;"
+                   type="text" readonly placeholder="Your SQL will appear here..."/>
             <button type="button" id="copyBtn" onclick="copySQL()"
                     style="display:none; height:30px; padding:0 14px;
                            background:#1d4ed8; color:white; border:none;
@@ -171,36 +173,25 @@
                 <i class="fa-regular fa-copy"></i> Copy
             </button>
         </div>
-
         <p id="sqlMeta" style="font-size:12px; color:gray; margin-top:4px;"></p>
 
-        <!-- ══════════════════════════════════════
-             EXPLANATION (your exact structure)
-        ══════════════════════════════════════ -->
+        <!-- ══ EXPLANATION (your exact structure) ══ -->
         <div>
             <h2 style="font-size: 40px;">
-                <i class="fa-regular fa-lightbulb fa-2xl"
-                   style="color: rgb(255, 212, 59);"></i>
+                <i class="fa-regular fa-lightbulb fa-2xl" style="color: rgb(255, 212, 59);"></i>
                 Explanation
             </h2>
-            <p id="explanationText"
-               style="font-size:15px; line-height:1.8;
-                      max-width:1300px; color:#333;">
-            </p>
+            <p id="explanationText" style="font-size:15px; line-height:1.8; max-width:1300px; color:#333;"></p>
         </div>
 
-        <!-- ══════════════════════════════════════
-             RESULTS TABLE (your exact .tab class)
-        ══════════════════════════════════════ -->
-        <div class="tab" id="tableSection"
-             style="display:none; margin-top:20px;">
+        <!-- ══ RESULTS TABLE (your exact .tab class) ══ -->
+        <div class="tab" id="tableSection" style="display:none; margin-top:20px;">
             <h2 style="font-size:28px; margin-bottom:8px;">
                 <i class="fa-solid fa-table" style="color:#1d4ed8;"></i>
                 Query Results
                 <span id="rowCountBadge"
-                      style="font-size:14px; background:#e0f2fe;
-                             color:#0369a1; padding:4px 12px;
-                             border-radius:20px; margin-left:12px;"></span>
+                      style="font-size:14px; background:#e0f2fe; color:#0369a1;
+                             padding:4px 12px; border-radius:20px; margin-left:12px;"></span>
             </h2>
             <div style="overflow-x:auto;">
                 <table border="1" id="resultsTable"
@@ -211,9 +202,7 @@
             </div>
         </div>
 
-        <!-- ══════════════════════════════════════
-             HISTORY
-        ══════════════════════════════════════ -->
+        <!-- ══ HISTORY ══ -->
         <div id="historySection" style="margin-top:30px; display:none;">
             <h2 style="font-size:30px;">
                 <i class="fa-solid fa-clock-rotate-left" style="color:#6b7280;"></i>
@@ -227,13 +216,10 @@
             </h2>
             <div id="historyList"
                  style="border:1px solid #e5e7eb; border-radius:10px;
-                        overflow:hidden; max-width:1300px;">
-            </div>
+                        overflow:hidden; max-width:1300px;"></div>
         </div>
 
-        <!-- ══════════════════════════════════════
-             RUN BUTTON (your exact button)
-        ══════════════════════════════════════ -->
+        <!-- ══ RUN BUTTON (your exact button) ══ -->
         <button type="button" id="execBtn" onclick="executeSQL()"
                 style="display:none; width:1300px; height:70px;
                        background-color: rgba(9, 78, 9, 0.808);
@@ -249,59 +235,44 @@
     </form>
 
     <script>
-    const BASE    = "http://127.0.0.1:5000/api";
+    const BASE    = window.location.origin + "/api";
     let   curSQL  = "";
     let   curHid  = null;
     let   dialect = "MySQL";
     let   isConnected = false;
 
-    /* ══════════════════════════════════════════
-       DB CONNECT / DISCONNECT
-    ══════════════════════════════════════════ */
+    /* ── DB CONNECT ── */
     async function connectDB() {
         const host = document.getElementById("dbHost").value.trim();
         const port = document.getElementById("dbPort").value.trim();
         const user = document.getElementById("dbUser").value.trim();
         const pass = document.getElementById("dbPass").value;
         const name = document.getElementById("dbName").value.trim();
-
         const errEl = document.getElementById("connError");
         errEl.style.display = "none";
-
         try {
             const res  = await fetch(`${BASE}/db/connect`, {
-                method:  "POST",
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body:    JSON.stringify({
-                    host, port: parseInt(port),
-                    user, password: pass, database: name
-                })
+                body: JSON.stringify({ host, port: parseInt(port), user, password: pass, database: name })
             });
-            const text = await res.text();
-            const data = JSON.parse(text);
-
+            const data = JSON.parse(await res.text());
             if (!data.success) throw new Error(data.error);
-
             isConnected = true;
-            document.getElementById("connForm").style.display    = "none";
-            document.getElementById("connected").style.display   = "block";
-            document.getElementById("connInfo").textContent =
-                `✅ Connected to ${user}@${host}:${port}/${name}`;
-            document.getElementById("connStatus").innerHTML =
-                `🟢 <strong>Connected</strong> — ${name} on ${host}`;
-            document.getElementById("connStatus").style.color = "#16a34a";
-
+            document.getElementById("connForm").style.display  = "none";
+            document.getElementById("connected").style.display = "block";
+            document.getElementById("connInfo").textContent    = `✅ Connected to ${user}@${host}:${port}/${name}`;
+            document.getElementById("connStatus").innerHTML    = `🟢 <strong>Connected</strong> — ${name} on ${host}`;
+            document.getElementById("connStatus").style.color  = "#16a34a";
         } catch(e) {
-            errEl.textContent    = "❌ " + (e.message || "Connection failed");
-            errEl.style.display  = "block";
+            errEl.textContent   = "❌ " + (e.message || "Connection failed");
+            errEl.style.display = "block";
         }
     }
 
+    /* ── DB DISCONNECT ── */
     async function disconnectDB() {
-        try {
-            await fetch(`${BASE}/db/disconnect`, { method: "POST" });
-        } catch {}
-
+        try { await fetch(`${BASE}/db/disconnect`, { method: "POST" }); } catch {}
         isConnected = false;
         document.getElementById("connForm").style.display    = "block";
         document.getElementById("connected").style.display   = "none";
@@ -309,29 +280,21 @@
         document.getElementById("connStatus").style.color    = "#6b7280";
         document.getElementById("dbPass").value              = "";
         document.getElementById("connError").style.display   = "none";
-
-        // hide results
         document.getElementById("tableSection").style.display = "none";
-        document.getElementById("execBtn").style.display      = "none";
+        document.getElementById("execBtn").style.display     = "none";
     }
 
-    /* ══════════════════════════════════════════
-       DIALECT
-    ══════════════════════════════════════════ */
+    /* ── DIALECT ── */
     function setD(d, btn) {
         dialect = d;
-        document.querySelectorAll(".dpill")
-                .forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".dpill").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
     }
 
-    /* ══════════════════════════════════════════
-       GENERATE SQL
-    ══════════════════════════════════════════ */
+    /* ── GENERATE SQL ── */
     async function generateSQL() {
         const q = document.getElementById("questionInput").value.trim();
         if (!q) { showErr("Please enter a question."); return; }
-
         hideErr();
         show("loadingMsg");
         setBtnState(false);
@@ -341,162 +304,119 @@
         document.getElementById("copyBtn").style.display     = "none";
         document.getElementById("execBtn").style.display     = "none";
         document.getElementById("tableSection").style.display = "none";
-
         try {
             const res  = await fetch(`${BASE}/sql/generate`, {
-                method:  "POST",
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body:    JSON.stringify({ question: q, dialect })
+                body: JSON.stringify({ question: q, dialect })
             });
             const text = await res.text();
             if (!text.trim()) throw new Error("Server returned empty response.");
             const data = JSON.parse(text);
             if (!data.success) throw new Error(data.error);
-
             curSQL = data.sql;
             curHid = data.history_id;
-
             document.getElementById("sqlOutput").value = data.sql;
             document.getElementById("explanationText").innerHTML =
                 data.explanation.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
             document.getElementById("sqlMeta").textContent =
                 `✓ ${data.tokens_used} tokens · ${dialect} · ${data.model}`;
-
             document.getElementById("copyBtn").style.display = "inline-block";
-
-            // only show run button if connected
-            if (isConnected) {
+            if (isConnected)
                 document.getElementById("execBtn").style.display = "block";
-            }
-
             loadHistory();
-
         } catch(e) {
-            showErr("❌ " + (e.message || "Could not reach Flask server."));
+            showErr("❌ " + (e.message || "Could not reach server."));
         } finally {
             hide("loadingMsg");
             setBtnState(true);
         }
     }
 
-    /* ══════════════════════════════════════════
-       EXECUTE SQL
-    ══════════════════════════════════════════ */
+    /* ── EXECUTE SQL ── */
     async function executeSQL() {
         if (!curSQL) return;
-        if (!isConnected) {
-            showErr("Please connect to MySQL first.");
-            return;
-        }
-
+        if (!isConnected) { showErr("Please connect to MySQL first."); return; }
         const btn = document.getElementById("execBtn");
-        btn.disabled    = true;
-        btn.textContent = "Running...";
-
+        btn.disabled = true;
         try {
             const res  = await fetch(`${BASE}/sql/execute`, {
-                method:  "POST",
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body:    JSON.stringify({ sql: curSQL, history_id: curHid })
+                body: JSON.stringify({ sql: curSQL, history_id: curHid })
             });
-            const text = await res.text();
-            const data = JSON.parse(text);
+            const data = JSON.parse(await res.text());
             if (!data.success) throw new Error(data.error);
-
             buildTable(data.columns, data.rows);
-            document.getElementById("rowCountBadge").textContent =
-                `${data.row_count} row(s)`;
+            document.getElementById("rowCountBadge").textContent = `${data.row_count} row(s)`;
             document.getElementById("tableSection").style.display = "block";
-
         } catch(e) {
             showErr("Execute error: " + e.message);
         } finally {
-            btn.disabled    = false;
-            btn.innerHTML   =
-                '<img class="imag" src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="AI"> Run Query on Database <i class="fa-solid fa-play"></i>';
+            btn.disabled  = false;
+            btn.innerHTML = '<img class="imag" src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="AI"> Run Query on Database <i class="fa-solid fa-play"></i>';
         }
     }
 
-    /* ══════════════════════════════════════════
-       BUILD TABLE
-    ══════════════════════════════════════════ */
+    /* ── BUILD TABLE ── */
     function buildTable(columns, rows) {
-        const thead = document.getElementById("tableHead");
-        const tbody = document.getElementById("tableBody");
-
-        thead.innerHTML = "<tr>" +
+        document.getElementById("tableHead").innerHTML = "<tr>" +
             columns.map(c =>
-                `<th style="padding:10px 14px; background:#f8fafc;
-                            text-align:left; font-size:12px;
-                            text-transform:uppercase; letter-spacing:1px;
+                `<th style="padding:10px 14px; background:#f8fafc; text-align:left;
+                            font-size:12px; text-transform:uppercase; letter-spacing:1px;
                             color:#64748b;">${c}</th>`
             ).join("") + "</tr>";
-
         if (!rows.length) {
-            tbody.innerHTML =
+            document.getElementById("tableBody").innerHTML =
                 `<tr><td colspan="${columns.length}"
                      style="padding:20px; text-align:center; color:gray;">
                      No rows returned.</td></tr>`;
             return;
         }
-
-        tbody.innerHTML = rows.map((row, i) =>
+        document.getElementById("tableBody").innerHTML = rows.map((row, i) =>
             `<tr style="background:${i % 2 === 0 ? '#fff' : '#f9fafb'}">` +
-            columns.map(c =>
-                `<td style="padding:10px 14px;">${row[c] ?? "NULL"}</td>`
-            ).join("") + "</tr>"
+            columns.map(c => `<td style="padding:10px 14px;">${row[c] ?? "NULL"}</td>`).join("") +
+            "</tr>"
         ).join("");
     }
 
-    /* ══════════════════════════════════════════
-       COPY SQL
-    ══════════════════════════════════════════ */
+    /* ── COPY ── */
     function copySQL() {
         navigator.clipboard.writeText(curSQL).then(() => {
             const btn = document.getElementById("copyBtn");
-            btn.innerHTML      = '<i class="fa-solid fa-check"></i> Copied!';
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
             btn.style.background = "#16a34a";
             setTimeout(() => {
-                btn.innerHTML      = '<i class="fa-regular fa-copy"></i> Copy';
+                btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy';
                 btn.style.background = "#1d4ed8";
             }, 2000);
         });
     }
 
-    /* ══════════════════════════════════════════
-       HISTORY
-    ══════════════════════════════════════════ */
+    /* ── HISTORY ── */
     async function loadHistory() {
         try {
-            const res  = await fetch(`${BASE}/history/?limit=8`);
-            const data = JSON.parse(await res.text());
+            const data = JSON.parse(await (await fetch(`${BASE}/history/?limit=8`)).text());
             if (!data.data?.length) return;
-
-            const list = document.getElementById("historyList");
-            list.innerHTML = data.data.map(r => `
+            document.getElementById("historyList").innerHTML = data.data.map(r => `
                 <div style="padding:12px 18px; border-bottom:1px solid #f3f4f6;
-                            display:flex; align-items:center;
-                            justify-content:space-between; gap:12px; cursor:pointer;"
+                            display:flex; align-items:center; justify-content:space-between;
+                            gap:12px; cursor:pointer;"
                      onclick="reloadItem(${r.id})">
                     <div>
-                        <div style="font-size:14px; font-weight:600; color:#1e293b;">
-                            ${r.question}
-                        </div>
+                        <div style="font-size:14px; font-weight:600; color:#1e293b;">${r.question}</div>
                         <div style="font-size:12px; color:#94a3b8; margin-top:2px;">
                             ${r.dialect} · ${r.created_at?.slice(0,16).replace("T"," ")}
                         </div>
                     </div>
                     <button onclick="event.stopPropagation();delItem(${r.id})"
-                            style="background:transparent; border:none;
-                                   color:#94a3b8; cursor:pointer; font-size:14px;">
+                            style="background:transparent; border:none; color:#94a3b8;
+                                   cursor:pointer; font-size:14px;">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </div>`).join("");
-
             document.getElementById("historySection").style.display = "block";
-        } catch(e) {
-            console.log("History error:", e.message);
-        }
+        } catch(e) { console.log("History error:", e.message); }
     }
 
     async function reloadItem(id) {
@@ -504,14 +424,12 @@
             const data = JSON.parse(await (await fetch(`${BASE}/history/${id}`)).text());
             if (!data.data) return;
             const r = data.data;
-            document.getElementById("questionInput").value        = r.question;
-            document.getElementById("sqlOutput").value            = r.generated_sql;
-            document.getElementById("explanationText").innerHTML  = r.explanation || "";
-            document.getElementById("copyBtn").style.display      = "inline-block";
-            curSQL = r.generated_sql;
-            curHid = r.id;
-            if (isConnected)
-                document.getElementById("execBtn").style.display = "block";
+            document.getElementById("questionInput").value       = r.question;
+            document.getElementById("sqlOutput").value           = r.generated_sql;
+            document.getElementById("explanationText").innerHTML = r.explanation || "";
+            document.getElementById("copyBtn").style.display     = "inline-block";
+            curSQL = r.generated_sql; curHid = r.id;
+            if (isConnected) document.getElementById("execBtn").style.display = "block";
         } catch {}
     }
 
@@ -525,29 +443,22 @@
         document.getElementById("historySection").style.display = "none";
     }
 
-    /* ══════════════════════════════════════════
-       HELPERS
-    ══════════════════════════════════════════ */
+    /* ── HELPERS ── */
     function show(id) { document.getElementById(id).style.display = "block"; }
-    function hide(id) { document.getElementById(id).style.display = "none";  }
+    function hide(id) { document.getElementById(id).style.display = "none"; }
     function showErr(msg) {
         const el = document.getElementById("errorMsg");
-        el.textContent     = msg;
-        el.style.display   = "block";
+        el.textContent = msg; el.style.display = "block";
     }
-    function hideErr() {
-        document.getElementById("errorMsg").style.display = "none";
-    }
+    function hideErr() { document.getElementById("errorMsg").style.display = "none"; }
     function setBtnState(on) {
-        const btn       = document.getElementById("genBtn");
-        btn.disabled    = !on;
+        const btn = document.getElementById("genBtn");
+        btn.disabled = !on;
         btn.textContent = on ? "Generate SQL" : "Generating...";
     }
 
     document.getElementById("questionInput")
-        .addEventListener("keydown", e => {
-            if (e.key === "Enter") generateSQL();
-        });
+        .addEventListener("keydown", e => { if (e.key === "Enter") generateSQL(); });
 
     loadHistory();
     </script>
