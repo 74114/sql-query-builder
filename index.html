@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI SQL Query Builder</title>
-    <link rel="stylesheet" href="ui.css"/>
+    <style>
+body{ background-color: lightblue; }
+.form{ background-color: white; border-radius: 20px; margin: 70px; padding: 20px; }
+.in1 input{ width:950px; height: 30px; }
+.in1 button{ width:300px; height: 30px; color: white; background-color: rgba(13, 83, 13, 0.781); }
+.tab{ width:1300px; }
+.imag{ width: 50px; height: 50px; border-radius:50px; }
+.dpill{ padding:4px 14px; border-radius:20px; border:1px solid #d1d5db; background:transparent; color:#6b7280; cursor:pointer; font-size:12px; }
+.dpill.active{ background:#2563eb; border-color:#2563eb; color:white; }
+</style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
@@ -126,7 +135,7 @@
              INPUT ROW (your exact structure)
         ══════════════════════════════════════ -->
         <div class="in1">
-            <input style="width:500px;" type="text" id="questionInput"
+            <input type="text" id="questionInput"
                    placeholder="show all students with marks above 70"/>
             <button type="button" id="genBtn" onclick="generateSQL()">
                 Generate SQL
