@@ -8,7 +8,9 @@ from db_routes import db_bp
 import os
 
 def create_app():
-    app = Flask(__name__, static_folder=".", static_url_path="")
+    app = Flask(__name__, 
+                static_folder=".",
+                static_url_path="/static")
     app.config.from_object(Config)
     CORS(app, origins="*")
 
@@ -19,6 +21,10 @@ def create_app():
     @app.route("/")
     def index():
         return send_from_directory(".", "index.html")
+
+    @app.route("/ui.css")
+    def css():
+        return send_from_directory(".", "ui.css")
 
     with app.app_context():
         init_db()
