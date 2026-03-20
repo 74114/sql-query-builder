@@ -1,11 +1,3 @@
-from flask import Flask, send_from_directory
-from flask_cors import CORS
-from config import Config
-from database import init_db
-from sql_routes import sql_bp
-from history_routes import history_bp
-from db_routes import db_bp
-import os
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,42 +46,32 @@ import os
             </p>
 
             <div id="connForm">
-
-                <!-- Quick connect buttons -->
-                <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
-                    <button type="button" onclick="useDemoDB()"
-                            style="height:34px; padding:0 16px;
-                                   background:#2563eb; color:white;
-                                   border:none; border-radius:6px;
-                                   font-size:13px; font-weight:600; cursor:pointer;">
-                        <i class="fa-solid fa-bolt"></i> Use Demo DB (Railway)
-                    </button>
-                    <span style="font-size:13px; color:#9ca3af; align-self:center;">
-                        — or enter your own credentials below —
-                    </span>
-                </div>
-
                 <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
 
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Host</label>
-                        <input type="text" id="dbHost" value=""
-                               placeholder="e.g. your-host.com"
-                               style="width:180px; height:32px; padding:0 10px;
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
+                            Host
+                        </label>
+                        <input type="text" id="dbHost" value="ballast.proxy.rlwy.net"
+                               style="width:120px; height:32px; padding:0 10px;
                                       border:1px solid #d1d5db; border-radius:6px;
                                       font-size:14px;"/>
                     </div>
 
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Port</label>
-                        <input type="text" id="dbPort" value="3306"
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
+                            Port
+                        </label>
+                        <input type="text" id="dbPort" value="31131"
                                style="width:70px; height:32px; padding:0 10px;
                                       border:1px solid #d1d5db; border-radius:6px;
                                       font-size:14px;"/>
                     </div>
 
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Username</label>
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
+                            Username
+                        </label>
                         <input type="text" id="dbUser" value="root"
                                style="width:100px; height:32px; padding:0 10px;
                                       border:1px solid #d1d5db; border-radius:6px;
@@ -97,17 +79,20 @@ import os
                     </div>
 
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Password</label>
-                        <input type="password" id="dbPass" placeholder="Enter password"
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
+                            Password
+                        </label>
+                        <input type="password" id="dbPass" placeholder="VOSsgLQblYisXhRlqemFaEpFfGMDFukx"
                                style="width:160px; height:32px; padding:0 10px;
                                       border:1px solid #d1d5db; border-radius:6px;
                                       font-size:14px;"/>
                     </div>
 
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Database</label>
-                        <input type="text" id="dbName" value=""
-                               placeholder="e.g. mydb"
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
+                            Database
+                        </label>
+                        <input type="text" id="dbName" value="railway"
                                style="width:120px; height:32px; padding:0 10px;
                                       border:1px solid #d1d5db; border-radius:6px;
                                       font-size:14px;"/>
@@ -123,9 +108,6 @@ import os
                     </button>
 
                 </div>
-                <p style="font-size:12px; color:#9ca3af; margin-top:8px;">
-                    💡 Enter your own MySQL database credentials above to connect
-                </p>
                 <p id="connError"
                    style="display:none; color:red; font-size:13px; margin-top:8px;"></p>
             </div>
@@ -258,15 +240,6 @@ import os
     let   dialect = "MySQL";
     let   isConnected = false;
 
-    function useDemoDB() {
-        document.getElementById("dbHost").value = "ballast.proxy.rlwy.net";
-        document.getElementById("dbPort").value = "31131";
-        document.getElementById("dbUser").value = "root";
-        document.getElementById("dbPass").value = "VOSsgLQblYisXhRlqemFaEpFfGMDFukx";
-        document.getElementById("dbName").value = "railway";
-        connectDB();
-    }
-
     async function connectDB() {
         const host = document.getElementById("dbHost").value.trim();
         const port = document.getElementById("dbPort").value.trim();
@@ -276,12 +249,6 @@ import os
 
         const errEl = document.getElementById("connError");
         errEl.style.display = "none";
-
-        if (!host || !name) {
-            errEl.textContent   = "❌ Please enter Host and Database name";
-            errEl.style.display = "block";
-            return;
-        }
 
         try {
             const res  = await fetch(`${BASE}/db/connect`, {
@@ -324,6 +291,7 @@ import os
         document.getElementById("connStatus").style.color    = "#6b7280";
         document.getElementById("dbPass").value              = "";
         document.getElementById("connError").style.display   = "none";
+
         document.getElementById("tableSection").style.display = "none";
         document.getElementById("execBtn").style.display      = "none";
     }
@@ -545,36 +513,3 @@ import os
 
 </body>
 </html>
-def create_app():
-    app = Flask(__name__,
-                static_folder=".",
-                static_url_path="/static")
-    app.config.from_object(Config)
-    CORS(app, origins="*")
-
-    app.register_blueprint(sql_bp,     url_prefix="/api/sql")
-    app.register_blueprint(history_bp, url_prefix="/api/history")
-    app.register_blueprint(db_bp,      url_prefix="/api/db")
-
-    @app.route("/")
-    def index():
-        return send_from_directory(".", "index.html")
-
-    @app.route("/ui.css")
-    def css():
-        return send_from_directory(".", "ui.css")
-
-    with app.app_context():
-        # Try to init DB but don't crash if Railway is unreachable
-        try:
-            init_db()
-        except Exception as e:
-            print(f"⚠️  Warning: Could not init DB on startup: {e}")
-            print("   App will still run. DB will connect when user provides credentials.")
-
-    return app
-
-if __name__ == "__main__":
-    app = create_app()
-    port = int(os.getenv("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
