@@ -1,3 +1,11 @@
+from flask import Flask, send_from_directory
+from flask_cors import CORS
+from config import Config
+from database import init_db
+from sql_routes import sql_bp
+from history_routes import history_bp
+from db_routes import db_bp
+import os
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,9 +39,6 @@
 
     <form class="form" onsubmit="return false;">
 
-        <!-- ══════════════════════════════════════
-             MySQL CONNECTION PANEL
-        ══════════════════════════════════════ -->
         <div id="connectPanel"
              style="background:#f0fdf4; border:1px solid #86efac;
                     border-radius:12px; padding:16px 20px; margin-bottom:20px;">
@@ -43,30 +48,40 @@
                 MySQL Database Connection
             </h3>
 
-            <!-- connection status -->
             <p id="connStatus"
                style="font-size:13px; margin-bottom:12px; color:#6b7280;">
                 ⚪ Not connected
             </p>
 
-            <!-- connection form (shown when disconnected) -->
             <div id="connForm">
+
+                <!-- Quick connect buttons -->
+                <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+                    <button type="button" onclick="useDemoDB()"
+                            style="height:34px; padding:0 16px;
+                                   background:#2563eb; color:white;
+                                   border:none; border-radius:6px;
+                                   font-size:13px; font-weight:600; cursor:pointer;">
+                        <i class="fa-solid fa-bolt"></i> Use Demo DB (Railway)
+                    </button>
+                    <span style="font-size:13px; color:#9ca3af; align-self:center;">
+                        — or enter your own credentials below —
+                    </span>
+                </div>
+
                 <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
 
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
-                            Host
-                        </label>
-                        <input type="text" id="dbHost" value="localhost"
-                               style="width:120px; height:32px; padding:0 10px;
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Host</label>
+                        <input type="text" id="dbHost" value=""
+                               placeholder="e.g. your-host.com"
+                               style="width:180px; height:32px; padding:0 10px;
                                       border:1px solid #d1d5db; border-radius:6px;
                                       font-size:14px;"/>
                     </div>
 
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
-                            Port
-                        </label>
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Port</label>
                         <input type="text" id="dbPort" value="3306"
                                style="width:70px; height:32px; padding:0 10px;
                                       border:1px solid #d1d5db; border-radius:6px;
@@ -74,9 +89,7 @@
                     </div>
 
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
-                            Username
-                        </label>
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Username</label>
                         <input type="text" id="dbUser" value="root"
                                style="width:100px; height:32px; padding:0 10px;
                                       border:1px solid #d1d5db; border-radius:6px;
@@ -84,9 +97,7 @@
                     </div>
 
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
-                            Password
-                        </label>
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Password</label>
                         <input type="password" id="dbPass" placeholder="Enter password"
                                style="width:160px; height:32px; padding:0 10px;
                                       border:1px solid #d1d5db; border-radius:6px;
@@ -94,10 +105,9 @@
                     </div>
 
                     <div>
-                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">
-                            Database
-                        </label>
-                        <input type="text" id="dbName" value="sqlcraft"
+                        <label style="font-size:12px; color:#6b7280; display:block; margin-bottom:4px;">Database</label>
+                        <input type="text" id="dbName" value=""
+                               placeholder="e.g. mydb"
                                style="width:120px; height:32px; padding:0 10px;
                                       border:1px solid #d1d5db; border-radius:6px;
                                       font-size:14px;"/>
@@ -113,11 +123,13 @@
                     </button>
 
                 </div>
+                <p style="font-size:12px; color:#9ca3af; margin-top:8px;">
+                    💡 Enter your own MySQL database credentials above to connect
+                </p>
                 <p id="connError"
                    style="display:none; color:red; font-size:13px; margin-top:8px;"></p>
             </div>
 
-            <!-- disconnect button (shown when connected) -->
             <div id="connected" style="display:none;">
                 <div style="display:flex; align-items:center; gap:16px;">
                     <span id="connInfo" style="font-size:14px; color:#166534; font-weight:600;"></span>
@@ -133,9 +145,6 @@
 
         </div>
 
-        <!-- ══════════════════════════════════════
-             INPUT ROW (your exact structure)
-        ══════════════════════════════════════ -->
         <div class="in1">
             <input type="text" id="questionInput"
                    placeholder="show all students with marks above 70"/>
@@ -144,7 +153,6 @@
             </button><br>
         </div>
 
-        <!-- dialect pills -->
         <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
             <span style="font-size:13px; color:gray;">Dialect:</span>
             <button type="button" class="dpill active" onclick="setD('MySQL',this)">MySQL</button>
@@ -153,7 +161,6 @@
             <button type="button" class="dpill" onclick="setD('BigQuery',this)">BigQuery</button>
         </div>
 
-        <!-- loading + error -->
         <p id="loadingMsg"
            style="display:none; color:#1d4ed8; font-size:15px; margin-top:12px;">
             <i class="fa-solid fa-spinner fa-spin"></i>
@@ -164,9 +171,6 @@
                   background:#fff0f0; padding:10px; border-radius:8px;
                   border:1px solid #ffcccc;"></p>
 
-        <!-- ══════════════════════════════════════
-             GENERATED SQL (your exact structure)
-        ══════════════════════════════════════ -->
         <h2 style="font-size:40px; margin-top:20px;">Generated SQL Query</h2>
 
         <div style="display:flex; align-items:center; gap:10px;">
@@ -185,9 +189,6 @@
 
         <p id="sqlMeta" style="font-size:12px; color:gray; margin-top:4px;"></p>
 
-        <!-- ══════════════════════════════════════
-             EXPLANATION (your exact structure)
-        ══════════════════════════════════════ -->
         <div>
             <h2 style="font-size: 40px;">
                 <i class="fa-regular fa-lightbulb fa-2xl"
@@ -200,9 +201,6 @@
             </p>
         </div>
 
-        <!-- ══════════════════════════════════════
-             RESULTS TABLE (your exact .tab class)
-        ══════════════════════════════════════ -->
         <div class="tab" id="tableSection"
              style="display:none; margin-top:20px;">
             <h2 style="font-size:28px; margin-bottom:8px;">
@@ -222,9 +220,6 @@
             </div>
         </div>
 
-        <!-- ══════════════════════════════════════
-             HISTORY
-        ══════════════════════════════════════ -->
         <div id="historySection" style="margin-top:30px; display:none;">
             <h2 style="font-size:30px;">
                 <i class="fa-solid fa-clock-rotate-left" style="color:#6b7280;"></i>
@@ -242,9 +237,6 @@
             </div>
         </div>
 
-        <!-- ══════════════════════════════════════
-             RUN BUTTON (your exact button)
-        ══════════════════════════════════════ -->
         <button type="button" id="execBtn" onclick="executeSQL()"
                 style="display:none; width:1200px; height:70px;
                        background-color: rgba(9, 78, 9, 0.808);
@@ -260,16 +252,21 @@
     </form>
 
     <script>
-   
-const BASE = "https://sql-query-builder.onrender.com/api";
+    const BASE    = "https://sql-query-builder.onrender.com/api";
     let   curSQL  = "";
     let   curHid  = null;
     let   dialect = "MySQL";
     let   isConnected = false;
 
-    /* ══════════════════════════════════════════
-       DB CONNECT / DISCONNECT
-    ══════════════════════════════════════════ */
+    function useDemoDB() {
+        document.getElementById("dbHost").value = "ballast.proxy.rlwy.net";
+        document.getElementById("dbPort").value = "31131";
+        document.getElementById("dbUser").value = "root";
+        document.getElementById("dbPass").value = "VOSsgLQblYisXhRlqemFaEpFfGMDFukx";
+        document.getElementById("dbName").value = "railway";
+        connectDB();
+    }
+
     async function connectDB() {
         const host = document.getElementById("dbHost").value.trim();
         const port = document.getElementById("dbPort").value.trim();
@@ -279,6 +276,12 @@ const BASE = "https://sql-query-builder.onrender.com/api";
 
         const errEl = document.getElementById("connError");
         errEl.style.display = "none";
+
+        if (!host || !name) {
+            errEl.textContent   = "❌ Please enter Host and Database name";
+            errEl.style.display = "block";
+            return;
+        }
 
         try {
             const res  = await fetch(`${BASE}/db/connect`, {
@@ -321,15 +324,10 @@ const BASE = "https://sql-query-builder.onrender.com/api";
         document.getElementById("connStatus").style.color    = "#6b7280";
         document.getElementById("dbPass").value              = "";
         document.getElementById("connError").style.display   = "none";
-
-        // hide results
         document.getElementById("tableSection").style.display = "none";
         document.getElementById("execBtn").style.display      = "none";
     }
 
-    /* ══════════════════════════════════════════
-       DIALECT
-    ══════════════════════════════════════════ */
     function setD(d, btn) {
         dialect = d;
         document.querySelectorAll(".dpill")
@@ -337,9 +335,6 @@ const BASE = "https://sql-query-builder.onrender.com/api";
         btn.classList.add("active");
     }
 
-    /* ══════════════════════════════════════════
-       GENERATE SQL
-    ══════════════════════════════════════════ */
     async function generateSQL() {
         const q = document.getElementById("questionInput").value.trim();
         if (!q) { showErr("Please enter a question."); return; }
@@ -376,7 +371,6 @@ const BASE = "https://sql-query-builder.onrender.com/api";
 
             document.getElementById("copyBtn").style.display = "inline-block";
 
-            // only show run button if connected
             if (isConnected) {
                 document.getElementById("execBtn").style.display = "block";
             }
@@ -391,9 +385,6 @@ const BASE = "https://sql-query-builder.onrender.com/api";
         }
     }
 
-    /* ══════════════════════════════════════════
-       EXECUTE SQL
-    ══════════════════════════════════════════ */
     async function executeSQL() {
         if (!curSQL) return;
         if (!isConnected) {
@@ -429,9 +420,6 @@ const BASE = "https://sql-query-builder.onrender.com/api";
         }
     }
 
-    /* ══════════════════════════════════════════
-       BUILD TABLE
-    ══════════════════════════════════════════ */
     function buildTable(columns, rows) {
         const thead = document.getElementById("tableHead");
         const tbody = document.getElementById("tableBody");
@@ -460,9 +448,6 @@ const BASE = "https://sql-query-builder.onrender.com/api";
         ).join("");
     }
 
-    /* ══════════════════════════════════════════
-       COPY SQL
-    ══════════════════════════════════════════ */
     function copySQL() {
         navigator.clipboard.writeText(curSQL).then(() => {
             const btn = document.getElementById("copyBtn");
@@ -475,9 +460,6 @@ const BASE = "https://sql-query-builder.onrender.com/api";
         });
     }
 
-    /* ══════════════════════════════════════════
-       HISTORY
-    ══════════════════════════════════════════ */
     async function loadHistory() {
         try {
             const res  = await fetch(`${BASE}/history/?limit=8`);
@@ -537,9 +519,6 @@ const BASE = "https://sql-query-builder.onrender.com/api";
         document.getElementById("historySection").style.display = "none";
     }
 
-    /* ══════════════════════════════════════════
-       HELPERS
-    ══════════════════════════════════════════ */
     function show(id) { document.getElementById(id).style.display = "block"; }
     function hide(id) { document.getElementById(id).style.display = "none";  }
     function showErr(msg) {
@@ -566,3 +545,36 @@ const BASE = "https://sql-query-builder.onrender.com/api";
 
 </body>
 </html>
+def create_app():
+    app = Flask(__name__,
+                static_folder=".",
+                static_url_path="/static")
+    app.config.from_object(Config)
+    CORS(app, origins="*")
+
+    app.register_blueprint(sql_bp,     url_prefix="/api/sql")
+    app.register_blueprint(history_bp, url_prefix="/api/history")
+    app.register_blueprint(db_bp,      url_prefix="/api/db")
+
+    @app.route("/")
+    def index():
+        return send_from_directory(".", "index.html")
+
+    @app.route("/ui.css")
+    def css():
+        return send_from_directory(".", "ui.css")
+
+    with app.app_context():
+        # Try to init DB but don't crash if Railway is unreachable
+        try:
+            init_db()
+        except Exception as e:
+            print(f"⚠️  Warning: Could not init DB on startup: {e}")
+            print("   App will still run. DB will connect when user provides credentials.")
+
+    return app
+
+if __name__ == "__main__":
+    app = create_app()
+    port = int(os.getenv("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
